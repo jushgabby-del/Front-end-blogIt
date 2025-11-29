@@ -1,8 +1,7 @@
 import { Button } from "./components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./components/ui/accordion";
 import { Card } from "./components/ui/card";
-import { Label } from "./components/ui/label";
-import { Input } from "./components/ui/input";
+
 import { useNavigate } from "react-router-dom";
 import {Link} from 'react-router-dom'
 
