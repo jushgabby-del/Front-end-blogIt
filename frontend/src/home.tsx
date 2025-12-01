@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import {Link} from 'react-router-dom'
 
 
+
 function Home() {
     const navigate = useNavigate(); 
 
@@ -19,7 +20,7 @@ function Home() {
           <ul className="flex space-x-4">
             <li><a href="#Home" className="hover:text-gray-200">Home</a></li>
             <li><a href="#About us" className="hover:text-gray-200">About</a></li>
-            <Link to="/blogs" className="hover:text-gray-200">Blogs</Link>
+            <Link to="/form" className="hover:text-gray-200">Blogs</Link>
           </ul>
           <Button onClick={() => navigate("/register")} className="bg-red-500 hover:bg-red-600 text-white">Sign Up</Button>
         </nav>

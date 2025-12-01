@@ -1,12 +1,9 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
-  output   = "../generated/prisma"
+  
 }
 
 datasource db {
@@ -14,33 +11,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/model User {
+  id           String    @id @map("UserId") @default(uuid())
+  firstName    String    @map("FirstName")
+  lastName     String    @map("LastName")
+  username     String    @map("Username") @unique
+  emailAddress String    @map("EmailAddress") @unique
+  isDeleted    Boolean   @map("IsDeleted") @default(false)
+  dateJoined   DateTime  @map("DateJoined") @default(now())
+  lastUpdate   DateTime  @map("LastUpdate") @updatedAt
 
-//users model
-model user {
-  id String @id @map("UserId") @default(uuid())
-  firstName String @map("FirstName")
-  lastName String @map("LastName")
-  username String @map("Username") @unique
-  emailAddress String @map("EmailAddress") @unique
-  isDeleted Boolean @map("IsDeleted") @default(false)
-  dateJoined DateTime @map ("DateJoined") @default(now())
-  lastUpdate DateTime @map ("LastUpdate") @updatedAt
-  tasks Task[]
-
+  blogs        Blog[]    @relation("UserBlogs")
 }
 
-model Task {
-id String @id @map("TaskId") @default(uuid())
-title String @map ("TaskTitle")
-description String @map("TaskDescription")
-isDeleted Boolean @default(false) @map()
-isCompleted Boolean @default(false) @map("isCompleted")
-createdAt DateTime @default(now()) @map("CreatedAt")
-updateAt DateTime @updateAt @map(updatedAt)
-userId String @map("UserId")
-user User @relation(fields: [userId], references:[id])
 
- 
- @@map("Tasks")
+
+// BLOG MODEL block
+model Blog {
+  id          String    @id @map("BlogId") @default(uuid())
+  title       String    @map("BlogTitle")
+  description String    @map("BlogDescription")
+  isDeleted   Boolean   @default(false) @map("IsDeleted")
+  isCompleted Boolean   @default(false) @map("IsCompleted")
+  createdAt   DateTime  @default(now()) @map("CreatedAt")
+  updatedAt   DateTime  @updatedAt @map("UpdatedAt")
+
+  userId      String    @map("UserId")
+  User        User      @relation(fields: [userId], references: [id], name: "UserBlogs")
+
+  @@map("Blogs")   // Table name in SQL Server
 }
-

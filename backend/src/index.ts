@@ -1,62 +1,79 @@
-import express, {
-    type Request,
-    type Response,
-    type NextFunction } 
-    from 'express';
- import dotenv from 'dotenv';
-import {register, login, logout} from './controllers/auth.ts'
-import {checkdetails} from '/middlewares/checkDetails.ts'
-import {checkUsernameandEmail} from '/middlewares/checkUsernameandEmail.ts'
-import {checkPasswordStrength} from /middlewares/checkPasswordStrength.ts'
-import {verifyToken} from './middlewares/verifyToken.ts'
-import {createTask, getTasks, recoverTask, updateTask} from './controllers/tasks.ts'
-import {validateTaskDetails} from './middlewares/validateTaskDetails.ts';      
+import express, {  type Request, type Response, type  NextFunction } from 'express';
+import dotenv from 'dotenv';
+import cors from 'cors';
 
-import { PrismaClient } from '@prisma/client';
-import { changeUserPassword, deleteUserProfile, getUserProfile, updateUserProfile } from './controllers/user.ts';
-
-const prisma = new PrismaClient();
-
+dotenv.config();
 
 const app = express();
-dotenv.config();
 app.use(express.json());
 
-app.get('/', (req, res) => {
-    res.status(200).send('Hello, World!');
+// AUTH CONTROLLERS
+import { register, login, logout } from './controllers/auth.ts';
+
+// MIDDLEWARES
+import { checkDetails } from './middlewares/checkDetails.ts';
+import  checkUsernameAndEmail  from './middlewares/checkUsernameandEmail.ts';
+import { checkPasswordStrength } from './middlewares/checkPasswordStrength.ts';
+import { verifyToken } from './middlewares/verifyToken.ts';
+
+// BLOG CONTROLLERS
+import {
+  createBlog,
+  getBlogs,
+  getSingleBlog,
+  updateBlog,
+  deleteBlog,
+  restoreBlog,
+  getTrashedBlogs,
+  completeBlog,
+  incompleteBlog
+} from './controllers/blogs.ts';
+
+import  validateBlogDetails from './middlewares/validateBlogDetails.ts';
+
+// USER CONTROLLERS
+import {
+  changeUserPassword,
+  deleteUserProfile,
+  getUserProfile,
+  updateUserProfile
+} from './controllers/user.ts';
+
+// CORS FIXED
+app.use(
+  cors({
+    origin: ["http://localhost:5173"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"]
+  })
+);
+
+app.get('/', (req: Request, res: Response) => {
+  res.status(200).send('Hello, World!');
 });
 
+/* AUTH ROUTES */
+app.post('/auth/register', checkDetails, checkUsernameAndEmail, checkPasswordStrength, register);
+app.post('/auth/login', login);
+app.post('/auth/logout', logout);
 
-app.post('/auth/register',
-     checkdetails, 
-     checkUsernameandEmail, 
-     checkPasswordStrength,
-      register,
-    ); 
-    app.post("auth/login", login)
-    app.post("auth/logout", logout)
+/* BLOG ROUTES */
+app.post('/blogs', verifyToken, validateBlogDetails, createBlog);
+app.get('/blogs', verifyToken, getBlogs);
+app.get('/blogs/trash', verifyToken, getTrashedBlogs);
+app.get('/blogs/:id', verifyToken, getSingleBlog);
+app.patch('/blogs/complete/:id', verifyToken, completeBlog);
+app.patch('/blogs/incomplete/:id', verifyToken, incompleteBlog);
+app.patch('/blogs/update/:id', verifyToken, validateBlogDetails, updateBlog);
+app.patch('/blogs/restore/:id', verifyToken, restoreBlog);
+app.delete('/blogs/:id', verifyToken, deleteBlog);
 
-    // Task endpoints   
-    app.post('/tasks', verifyToken, validateTaskDetails, createTask);
-   app.get('/tasks', verifyToken, getTasks);
-   app.get('/tasks/trash', verifyToken, trash);
-   app.get('/tasks/:id', verifyToken, getTasks);
-   
-   app.patch('/tasks/completed:id', verifyToken, completeTask);
-   app.patch('/tasks/:incomplete:id', verifyToken, validateTaskDetails, inCompleteTask);
-   app.patch('/tasks/:id', verifyToken, validateTaskDetails, updateTask);
-   app.patch('/tasks/restore/:id', verifyToken, recoverTask);
-   
-   app.delete('/tasks/:id', verifyToken, deleteTask);
-             
+/* USER ROUTES */
+app.get('/user/profile', verifyToken, getUserProfile);
+app.patch('/user/profile', verifyToken, updateUserProfile);
+app.delete('/user/profile', verifyToken, deleteUserProfile);
+app.patch('/user/change-password', verifyToken, changeUserPassword);
 
-// user profile endpoints
-   app.get('/user/profile', verifyToken, getUserProfile);
-   app.patch('/user/profile', verifyToken, updateUserProfile);
-   app.delete('/user/profile', verifyToken, deleteUserProfile);
-   app.patch('/user/change-password', verifyToken, changeUserPassword);
-   
-    const PORT = 5000; 
-    app.listen(PORT, () => {
-        console.log(`Server is running on port ${PORT}`);
-    });
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

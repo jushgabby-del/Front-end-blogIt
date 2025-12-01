@@ -19,9 +19,9 @@ export function checkDetails (req: Request, res: Response, next: NextFunction) {
         res.status(400).json({message: "A valid user name is required"})
         return;
      }
-      if (!password){
-        res.status(400).json({message: "A valid password and  matching credentials are required"})
-        return;
-     }
-    }
-     next();
+        if (!password){
+           res.status(400).json({message: "A valid password and  matching credentials are required"})
+           return;
+        }
+        next();
+   }
